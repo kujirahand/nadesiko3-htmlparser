@@ -15,7 +15,7 @@ function getDom(query) {
     return dom
   }
   if (!query) throw new Error('空のDOMオブジェクトが指定されました。')
-  return query
+  return htmlObj.$(query)
 }
 
 const PluginHTMLParser = {
@@ -54,7 +54,7 @@ const PluginHTMLParser = {
     josi: [['を']],
     fn: function (html, sys) {
       const client = require('cheerio')
-      const $ = client.load(url)
+      const $ = client.load(html)
       sys.__htmlparser = $
       htmlObj.$ = $
       return $
@@ -154,12 +154,12 @@ const PluginHTMLParser = {
       return o.data(k)
     }
   },
-  'DOM配列変換': { // @DOMを // @でーたしゅとく
+  'DOM配列変換': { // @DOMを // @DOMはいれつへんかん
     type: 'func',
     josi: [['から','の']],
     fn: function (dom, k, sys) {
       const o = getDom(dom)
-      return o.serializeArray()
+      return o.toArray()
     }
   },
   'タグ名取得': { // @DOMのタグ名を取得する // @たぐめいしゅとく
