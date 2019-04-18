@@ -12,9 +12,9 @@ function getDom(query) {
   if (typeof query === "string") {
     const dom = htmlObj.$(query)
     if (!dom) throw new Error(`クエリ『${query}』が見当たりません。`)
-  } else {
-    if (!query) throw new Error('空のDOMオブジェクトが指定されました。')
+    return dom
   }
+  if (!query) throw new Error('空のDOMオブジェクトが指定されました。')
   return query
 }
 
@@ -24,7 +24,7 @@ const PluginHTMLParser = {
     josi: [],
     fn: function (sys) {
       sys.__htmlparser = null;
-      htmlObj = {}
+      htmlObj.$ = null;
     }
   },
 
@@ -39,6 +39,9 @@ const PluginHTMLParser = {
       const resolve = sys.resolve
       const client = require('cheerio-httpcli')
       client.fetch(url, {}, function (err, $, res) {
+        if (err) {
+            throw new Error(`『${url}』の取得に失敗。` + err.message)
+        }
         sys.__v0['HTML応答ヘッダ'] = res.headers
         sys.__htmlparser = $
         htmlObj.$ = $
