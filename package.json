@@ -1,6 +1,6 @@
 {
   "name": "nadesiko3-htmlparser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "HTML Parser for Nadesiko3",
   "main": "src/plugin_htmlparser.js",
   "scripts": {
@@ -19,7 +19,6 @@
   "homepage": "https://github.com/kujirahand/nadesiko3-htmlparser#readme",
   "dependencies": {
     "cheerio-httpcli": "^0.7.4",
-    "fix": "0.0.6"
   },
   "devDependencies": {
     "mocha": "^3.4.2",
