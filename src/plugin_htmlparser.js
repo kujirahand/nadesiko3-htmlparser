@@ -10,9 +10,13 @@ const htmlObj = {}
 function getDom(query) {
   if (!htmlObj.$) throw new Error(ERR_PARSER)
   if (typeof query === "string") {
-    const dom = htmlObj.$(query)
-    if (!dom) throw new Error(`クエリ『${query}』が見当たりません。`)
-    return dom
+    try {
+      const dom = htmlObj.$(query)
+      if (!dom) throw new Error(`クエリ『${query}』が見当たりません。`)
+      return dom
+    } catch (e) {
+      throw new Error(`クエリ『${query}』が取得できません。` + e.message)
+    }
   }
   if (!query) throw new Error('空のDOMオブジェクトが指定されました。')
   return htmlObj.$(query)
@@ -90,6 +94,13 @@ const PluginHTMLParser = {
       return getDom(q).parent()
     }
   },
+  'DOM次要素取得': { // @DOMの親要素を取得する // @DOMおやようそしゅとく
+    type: 'func',
+    josi: [['を','の','から']],
+    fn: function (q, sys) {
+      return getDom(q).next()
+    }
+  },
   'DOM抽出': { // @DOMからクエリQを利用して合致するものを抽出する // @DOMちゅうしゅつ
     type: 'func',
     josi: [['から','の'],['を']],
@@ -122,6 +133,14 @@ const PluginHTMLParser = {
       return o.html()
     }
   },
+  'HTML設定': { // @DOMにSを設定する // @HTML設定
+    type: 'func',
+    josi: [['に','へ'],['を']],
+    fn: function (dom, s, sys) {
+      const o = getDom(dom)
+      return o.html(s)
+    }
+  },
   'プロパティ取得': { // @DOMのプロパティPROPを取得する // @ぷろぱてぃしゅとく
     type: 'func',
     josi: [['から','の'],['を']],
@@ -136,6 +155,14 @@ const PluginHTMLParser = {
     fn: function (dom, sys) {
       const o = getDom(dom)
       return o.val()
+    }
+  },
+  '値設定': { // @DOMの値vを設定する // @あたいせってい
+    type: 'func',
+    josi: [['に','へ'],['を']],
+    fn: function (dom, v, sys) {
+      const o = getDom(dom)
+      return o.val(v)
     }
   },
   'スタイル取得': { // @DOMのスタイルKを取得する // @すたいるしゅとく
@@ -167,11 +194,13 @@ const PluginHTMLParser = {
     josi: [['から','の']],
     fn: function (dom, sys) {
       const o = getDom(dom)
-      return o.tagName
+      const p = o.get(0)
+      if (!p) return '';
+      if (p.tagName) return p.tagName
+      return ''
     }
   }
 }
 
 
 module.exports = PluginHTMLParser
-
