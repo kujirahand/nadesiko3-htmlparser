@@ -28,6 +28,46 @@ describe('htmlparser_test', () => {
     cmp('3を表示', '3')
   })
   // --- テスト ---
+  const html = '<html><body>' +
+    '<h1 class="h1" id="h1" style="color:red">hoge</h1>' +
+    '<a id="link" href="a.html">abc</a>' +
+    '<ul><li class="hoge">aaa</li><li>bbb</li></ul></body></html>'
+  it('basic', () => {
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「.hoge」のDOM要素取得して、テキスト取得して表示。`,
+      'aaa')
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「.hoge」のテキスト取得して表示。`,
+      'aaa')
+  })
+  it('rewite', () => {
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「.hoge」のDOM要素取得して、Aに代入。Aに「ccc」をHTML設定。Aのテキスト取得して表示。`,
+      'ccc')
+  })
+  it('属性取得', () => {
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「#link」のDOM要素取得して、"href"を属性取得して表示。`,
+      'a.html')
+  })
+  it('style', () => {
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「#h1」のDOM要素取得して、Aに代入。Aの"color"をスタイル取得して表示。`,
+      'red')
+  })
+  it('タグ名取得', () => {
+    cmp(
+      `HTML=『${html}』;HTMLをHTMLパース;` +
+      `「#link」のDOM要素取得して、Aに代入。Aのタグ名取得して表示。`,
+      'a')
+  })
+  /*
+  // 処理に時間がかかるのでパス
   it('逐次実行', (done) => {
     const url = 'https://nadesi.com/doc3/index.php?plugin_system'
     global.done = done
@@ -40,4 +80,5 @@ describe('htmlparser_test', () => {
       'ここまで\n'
     )
   })
+  */
 })
