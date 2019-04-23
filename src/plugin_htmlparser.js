@@ -184,7 +184,7 @@ const PluginHTMLParser = {
   'DOM配列変換': { // @DOMを配列に変換する // @DOMはいれつへんかん
     type: 'func',
     josi: [['から', 'を']],
-    fn: function (dom, k, sys) {
+    fn: function (dom, sys) {
       const o = getDom(dom)
       return o.toArray()
     }
