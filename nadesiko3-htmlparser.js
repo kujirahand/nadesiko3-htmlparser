@@ -1,4 +1,4 @@
-// plugin_htmlparser.js
+// nadesiko3-htmlparser.js
 
 const ERR_ASYNC = '『逐次実行』構文で使ってください。'
 const ERR_PARSER = '『HTML逐次URL開』または『HTMLパース』を実行してHTMLパーサを利用可能にしてください。'
@@ -41,7 +41,7 @@ const PluginHTMLParser = {
       if (!sys.resolve) throw new Error(ERR_ASYNC)
       sys.resolveCount++
       const resolve = sys.resolve
-      const client = require('cheerio-httpcli')
+      const client = require('cheerio')
       client.fetch(url, {}, function (err, $, res) {
         if (err) {
           throw new Error(`『${url}』の取得に失敗。` + err.message)

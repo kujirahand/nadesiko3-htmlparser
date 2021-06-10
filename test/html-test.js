@@ -3,7 +3,7 @@ const path = require('path')
 const nadesiko3 = require('nadesiko3')
 const NakoCompiler = nadesiko3.compiler
 const PluginNode = nadesiko3.PluginNode
-const PluginHTMLParser = require('../src/plugin_htmlparser.js')
+const PluginHTMLParser = require('../nadesiko3-htmlparser.js')
 const assert_func = (a, b) => { assert.equal(a, b) }
 
 describe('htmlparser_test', () => {
