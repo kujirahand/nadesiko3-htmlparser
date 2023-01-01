@@ -1,6 +1,6 @@
 {
   "name": "nadesiko3-htmlparser",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "HTML Parser for Nadesiko3",
   "main": "nadesiko3-htmlparser.js",
   "type": "module",
