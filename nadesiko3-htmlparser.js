@@ -1,28 +1,29 @@
 // nadesiko3-htmlparser.js
+import * as cheerio from 'cheerio'
+import fetch from 'node-fetch'
 
-const ERR_ASYNC = '『逐次実行』構文で使ってください。'
-const ERR_PARSER = '『HTML逐次URL開』または『HTMLパース』を実行してHTMLパーサを利用可能にしてください。'
-
+const ERR_PARSER = '『HTML_URL開』または『HTMLパース』を実行してHTMLパーサを利用可能にしてください。'
 // モジュールローカル
 const htmlObj = {}
 
 // 文字列からDOMを取得して、エラーチェックもする
 function getDom (query) {
+  if (query === htmlObj.$) { return query }
   if (!htmlObj.$) throw new Error(ERR_PARSER)
-  if (typeof query === 'string') {
+  if (typeof query !== 'object') {
     try {
       const dom = htmlObj.$(query)
-      if (!dom) throw new Error(`クエリ『${query}』が見当たりません。`)
+      if (!dom) throw new Error(`空のクエリ『${query}』が指定されました。`)
       return dom
     } catch (e) {
-      throw new Error(`クエリ『${query}』が取得できません。` + e.message)
+      throw new Error(`クエリ『${query}』の取得に失敗。` + e.message)
     }
   }
   if (!query) throw new Error('空のDOMオブジェクトが指定されました。')
   return htmlObj.$(query)
 }
 
-const PluginHTMLParser = {
+export default {
   '初期化': {
     type: 'func',
     josi: [],
@@ -33,23 +34,21 @@ const PluginHTMLParser = {
   },
 
   // @HTMLパーサ(コンソール)
-  'HTML応答ヘッダ': { type: 'const', value: '' }, // @HTMLおうとうへっだ
-  'HTML逐次URL開': { // @任意のURLを開いてパースする。 // @HTMLちくじURLひらく
+  'HTML_URL開': { // @任意のURLを開いてパースする。 // @HTML_URLひらく
     type: 'func',
     josi: [['を']],
+    asyncFn: true,
     fn: function (url, sys) {
-      if (!sys.resolve) throw new Error(ERR_ASYNC)
-      sys.resolveCount++
-      const resolve = sys.resolve
-      const client = require('cheerio')
-      client.fetch(url, {}, function (err, $, res) {
-        if (err) {
-          throw new Error(`『${url}』の取得に失敗。` + err.message)
-        }
-        sys.__v0['HTML応答ヘッダ'] = res.headers
-        sys.__htmlparser = $
-        htmlObj.$ = $
-        resolve()
+      return new Promise((resolve, reject) => {
+        fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          const dom = cheerio.load(text)
+          sys.__htmlparser = dom
+          htmlObj.$ = dom
+          resolve(dom)
+        })
+        .catch(err => reject(err))
       })
     }
   },
@@ -57,26 +56,31 @@ const PluginHTMLParser = {
     type: 'func',
     josi: [['を']],
     fn: function (html, sys) {
-      const client = require('cheerio')
-      const $ = client.load(html)
+      const $ = cheerio.load(html)
       sys.__htmlparser = $
       htmlObj.$ = $
       return $
     }
   },
-  'DOM要素取得': { // @パース済みHTMLからクエリQに該当するDOMを取得する // @DOMようそしゅとく
+  'DOM検索': { // @DOMからクエリQを利用して合致するものを検索して配列で返す // @DOMちゅうしゅつ
+    type: 'func',
+    josi: [['から', 'の'], ['を']],
+    fn: function (dom, q, sys) {
+      // root
+      if (dom === htmlObj.$) {
+        return dom(q).toArray()
+      }
+      // not root
+      const $ = getDom(dom)
+      const r = $.find(q).toArray()
+      return r
+    }
+  },
+  'DOM要素取得': { // @パース済みHTMLからクエリQに該当するDOMを取得して返す // @DOMようそしゅとく
     type: 'func',
     josi: [['を', 'の', 'から']],
     fn: function (q, sys) {
       return getDom(q)
-    }
-  },
-  'DOM子要素検索': { // @DOMの子要素Qを取得する // @DOMこようそけんさく
-    type: 'func',
-    josi: [['の', 'から'], ['を']],
-    fn: function (dom, q, sys) {
-      const o = getDom(dom)
-      return o.find(q)
     }
   },
   'DOM子要素全取得': { // @DOMの子要素を全部取得する // @DOMこようそぜんしゅとく
@@ -101,12 +105,11 @@ const PluginHTMLParser = {
       return getDom(q).next()
     }
   },
-  'DOM抽出': { // @DOMからクエリQを利用して合致するものを抽出する // @DOMちゅうしゅつ
+  'DOM抽出': { // @DOMからクエリQを利用して合致するものを抽出して配列で返す // @DOMちゅうしゅつ
     type: 'func',
     josi: [['から', 'の'], ['を']],
     fn: function (dom, q, sys) {
-      const o = getDom(dom)
-      return o.filter(q)
+      return sys.__exec('DOM検索', [dom, q, sys])
     }
   },
   '属性取得': { // @DOMの属性Kを取得する // @ぞくせいしゅとく
@@ -122,7 +125,11 @@ const PluginHTMLParser = {
     josi: [['から', 'の']],
     fn: function (dom, sys) {
       const o = getDom(dom)
-      return o.text()
+      if ('text' in o) {
+        const s = o.text()
+        return s
+      }
+      return ''
     }
   },
   'HTML取得': { // @DOMのHTMLを取得する // @HTMLしゅとく
@@ -201,5 +208,3 @@ const PluginHTMLParser = {
     }
   }
 }
-
-module.exports = PluginHTMLParser

@@ -1,0 +1,8 @@
+!「nadesiko3-htmlparser」を取り込む。
+URL=「https://nadesi.com/v3/doc/index.php?nadesiko3-htmlparser」
+URLをHTML_URL開く。
+DOM=「#kona3_main」をDOM要素取得
+DOMから「li」をDOM検索して反復
+　　対象からテキスト取得して表示。
+ここまで。
+
