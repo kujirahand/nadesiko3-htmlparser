@@ -24,6 +24,16 @@ function getDom (query) {
 }
 
 export default {
+  'meta': {
+    type: 'const',
+    value: { // プラグインに関する情報を指定する
+      pluginName: 'nadesiko3-htmlparser', // プラグインの名前
+      description: 'HTMLパーサープラグイン', // プラグインの説明
+      pluginVersion: '3.7.8', // プラグインのバージョン
+      nakoRuntime: ['cnako'], // 対象ランタイム
+      nakoVersion: '3.7.8' // 要求なでしこバージョン
+    }
+  },
   '初期化': {
     type: 'func',
     josi: [],
